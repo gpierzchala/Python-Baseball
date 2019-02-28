@@ -1,13 +1,8 @@
 import os
-import sys
 import glob
 import pandas as pd
 
-directory_root = os.getcwd();
-directory_root = directory_root.replace('stats', '')
-directory_games = os.path.join(directory_root, 'games', '*.EVE')
-
-game_files = glob.glob(directory_games)
+game_files = glob.glob(os.path.join(os.getcwd(), 'games', '*.EVE'))
 game_files.sort()
 
 game_frames = []
@@ -17,6 +12,7 @@ for game_file in game_files:
     game_frames.append(game_frame)
 
 games = pd.concat(game_frames)
+
 games.loc[games['multi5'] == '??', 'multi5'] = ''
 
 identifiers = games['multi2'].str.extract(r'(.LS(\d{4})\d{5})')
@@ -24,7 +20,9 @@ identifiers = identifiers.fillna(method='ffill')
 identifiers.columns = ['game_id', 'year']
 
 games = pd.concat([games, identifiers], axis=1, sort=False)
+
 games = games.fillna(' ')
+
 games.loc[:, 'type'] = pd.Categorical(games.loc[:, 'type'])
 
 print(games.head())
